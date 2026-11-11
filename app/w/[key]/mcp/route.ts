@@ -14,4 +14,13 @@ async function handle(req: Request, ctx: { params: Promise<{ key: string }> }) {
   return buildMcpHandler(ws, baseUrl(req))(req);
 }
 
-export { handle as GET, handle as POST, handle as DELETE };
+/**
+ * PaidUp's MCP server is stateless and never pushes messages on its own, so it declines the optional
+ * long-lived GET listening stream (allowed by the MCP Streamable HTTP spec). Holding it open would only
+ * hit Vercel's function time limit. All tool calls go over POST.
+ */
+function GET() {
+  return new Response(null, { status: 405, headers: { Allow: "POST, DELETE" } });
+}
+
+export { GET, handle as POST, handle as DELETE };
