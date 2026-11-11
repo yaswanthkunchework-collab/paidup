@@ -4,6 +4,7 @@ import { requireWorkspace } from "@/lib/auth";
 import { getInvoiceDetail } from "@/lib/invoices";
 import { baseUrl } from "@/lib/url";
 import { AutoRefresh } from "@/components/AutoRefresh";
+import { emailConfigured } from "@/lib/email";
 import { Editor } from "./Editor";
 
 export default async function InvoicePage({ params }: { params: Promise<{ id: string }> }) {
@@ -46,6 +47,8 @@ export default async function InvoicePage({ params }: { params: Promise<{ id: st
         }}
         events={inv.events.map((e) => ({ ...e, created_at: new Date(e.created_at).toISOString() }))}
         link={link}
+        emailReady={emailConfigured()}
+        emailed={inv.events.some((e) => e.type === "emailed")}
       />
     </main>
   );

@@ -385,6 +385,14 @@ export async function markSent(wsId: number, id: number, actor: Actor) {
   if (r.length) await logEvent(id, actor, "sent", "Marked as sent");
 }
 
+/** Records a successful email to the client: drafts become 'sent'; later statuses are kept. */
+export async function markEmailed(wsId: number, id: number, to: string, resend: boolean, actor: Actor) {
+  const s = await db();
+  await s`update invoices set status = case when status = 'draft' then 'sent' else status end, updated_at = now()
+    where id = ${id} and workspace_id = ${wsId}`;
+  await logEvent(id, actor, "emailed", `${resend ? "Re-sent" : "Emailed"} to ${to}`);
+}
+
 export async function recordPayment(
   wsId: number,
   id: number,
@@ -448,6 +456,7 @@ export async function clientAction(token: string, action: "approve" | "query" | 
   const [r] = await s<{ id: number; status: string }[]>`select id, status from invoices where public_token = ${token}`;
   if (!r) throw new Error("Invoice not found.");
   if (r.status === "paid") return;
+  if (r.status === "draft") throw new Error("Invoice not found.");
   const msg = (message ?? "").trim().slice(0, 1000) || null;
   if (action === "approve") {
     await s`update invoices set status = 'approved', approved_at = now(), updated_at = now() where id = ${r.id}`;
