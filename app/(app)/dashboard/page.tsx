@@ -46,7 +46,7 @@ export default async function Dashboard({ searchParams }: { searchParams: Promis
           <Link
             key={t.key}
             href={t.key === "all" ? "/dashboard" : `/dashboard?f=${t.key}`}
-            className={`-mb-px border-b-2 px-3 py-2 ${f === t.key ? "border-ink font-semibold text-ink" : "border-transparent text-muted hover:text-ink"}`}
+            className={`-mb-px border-b-2 px-3 py-2 ${f === t.key ? "border-ink font-semibold text-ink" : "border-transparent text-ink-soft hover:border-rule hover:text-action"}`}
           >
             {t.label}
           </Link>
@@ -55,7 +55,7 @@ export default async function Dashboard({ searchParams }: { searchParams: Promis
 
       {rows.length === 0 ? (
         <div className="mt-10 text-center text-sm text-muted">
-          Nothing here yet. Ask Claude to “invoice a client”, or <Link href="/connect" className="underline">connect Claude</Link> first.
+          Nothing here yet. Ask Claude to “invoice a client”, or <Link href="/connect" className="link">connect Claude</Link> first.
         </div>
       ) : (
         <div className="sheet mt-4 overflow-x-auto rounded-lg">
@@ -75,7 +75,7 @@ export default async function Dashboard({ searchParams }: { searchParams: Promis
               {rows.map((r) => (
                 <tr key={r.id} className="border-b border-rule last:border-0 hover:bg-desk/60">
                   <td className="px-4 py-3">
-                    <Link href={`/invoices/${r.id}`} className="num font-medium underline-offset-2 hover:underline">{r.number}</Link>
+                    <Link href={`/invoices/${r.id}`} className="num link">{r.number}</Link>
                     <div className="mt-0.5 flex items-center gap-1.5 text-xs text-muted">
                       <ActorTag actor={r.created_by} /> {fmtDate(r.issue_date)}
                     </div>

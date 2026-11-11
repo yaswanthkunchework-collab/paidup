@@ -7,7 +7,7 @@ export function NewInvoiceButton() {
   const [busy, setBusy] = useState(false);
   return (
     <button
-      className="btn btn-quiet py-1.5"
+      className="btn px-3 py-1.5 text-sm"
       disabled={busy}
       onClick={async () => {
         setBusy(true);

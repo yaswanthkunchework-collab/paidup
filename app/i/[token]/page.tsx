@@ -152,7 +152,7 @@ export default async function PublicInvoice({ params }: { params: Promise<{ toke
           </div>
           <PrintButton />
           <p className="text-center text-xs text-muted">
-            Sent with <Link href="/" className="font-semibold text-ink">PaidUp</Link>, invoicing from Claude
+            Sent with <Link href="/" className="link">PaidUp</Link>, invoicing from Claude
           </p>
         </aside>
       </div>

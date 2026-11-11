@@ -21,7 +21,7 @@ export default function Home() {
       <header className="mx-auto flex max-w-6xl items-center justify-between px-5 py-5">
         <span className="text-lg font-bold tracking-tight">PaidUp</span>
         <nav className="flex items-center gap-4 text-sm">
-          <Link href="/connect" className="text-ink-soft hover:text-ink">Connect Claude</Link>
+          <Link href="/connect" className="link">Connect Claude</Link>
           <Link href="/login" className="btn py-1.5">Open the demo</Link>
         </nav>
       </header>

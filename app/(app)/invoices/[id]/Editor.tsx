@@ -208,7 +208,7 @@ export function Editor({ ws, inv, events, link, emailReady, emailed }: { ws: Ws;
               </button>
             </div>
           ))}
-          <button className="mt-2 text-sm font-medium text-ink-soft hover:text-ink" onClick={() => edit((x) => void x.items.push({ description: "", quantity: 1, rate: 0, gst_rate: 18 }))}>
+          <button className="link mt-2 text-sm" onClick={() => edit((x) => void x.items.push({ description: "", quantity: 1, rate: 0, gst_rate: 18 }))}>
             + Add line
           </button>
         </section>
@@ -303,7 +303,7 @@ export function Editor({ ws, inv, events, link, emailReady, emailed }: { ws: Ws;
               )}
               {sendBlocker && !confirmSend && <p className="mt-2 text-xs text-muted">{sendBlocker}</p>}
               {sendMsg && <p className={`mt-2 text-sm ${sendMsg.ok ? "text-stamp" : "text-ledger"}`}>{sendMsg.text}</p>}
-              <a className="mt-2 block text-center text-sm text-muted hover:text-ink" href={link} target="_blank" rel="noreferrer">
+              <a className="link mt-2 block text-center text-sm" href={link} target="_blank" rel="noreferrer">
                 Preview what your client sees
               </a>
             </div>
@@ -311,7 +311,7 @@ export function Editor({ ws, inv, events, link, emailReady, emailed }: { ws: Ws;
 
           {paid && (
             <div className="border-t border-rule pt-4">
-              <a className="block text-center text-sm text-muted hover:text-ink" href={link} target="_blank" rel="noreferrer">
+              <a className="link block text-center text-sm" href={link} target="_blank" rel="noreferrer">
                 Preview what your client sees
               </a>
             </div>
@@ -351,8 +351,8 @@ export function Editor({ ws, inv, events, link, emailReady, emailed }: { ws: Ws;
         </div>
 
         <div className="flex justify-between text-sm">
-          <Link href="/dashboard" className="text-muted hover:text-ink">Back to invoices</Link>
-          <button onClick={remove} className="text-muted hover:text-ledger">Delete invoice</button>
+          <Link href="/dashboard" className="link">Back to invoices</Link>
+          <button onClick={remove} className="link-danger">Delete invoice</button>
         </div>
       </aside>
     </div>
