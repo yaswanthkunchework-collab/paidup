@@ -7,7 +7,13 @@ declare global {
   var __paidupSql: ReturnType<typeof postgres> | undefined;
   // eslint-disable-next-line no-var
   var __paidupReady: Promise<void> | undefined;
+  // eslint-disable-next-line no-var
+  var __paidupLastUse: number | undefined;
 }
+
+// Serverless instances are frozen between requests, and the database drops idle connections meanwhile.
+// Reusing such a connection hangs until the function times out, so after an idle gap we start fresh.
+const MAX_IDLE_MS = 10_000;
 
 function makeClient() {
   if (!url) throw new Error("DATABASE_URL is not set. Add a Postgres database (e.g. Neon) to the project.");
@@ -15,14 +21,24 @@ function makeClient() {
   return postgres(url, {
     ssl: isLocal ? false : "require",
     max: 5,
-    idle_timeout: 20,
+    idle_timeout: 8,
+    max_lifetime: 120,
+    connect_timeout: 10,
     prepare: false,
     onnotice: () => {},
   });
 }
 
 export function sql() {
+  const now = Date.now();
+  const stale = globalThis.__paidupLastUse !== undefined && now - globalThis.__paidupLastUse > MAX_IDLE_MS;
+  if (globalThis.__paidupSql && stale) {
+    const old = globalThis.__paidupSql;
+    globalThis.__paidupSql = undefined;
+    old.end({ timeout: 5 }).catch(() => {});
+  }
   if (!globalThis.__paidupSql) globalThis.__paidupSql = makeClient();
+  globalThis.__paidupLastUse = now;
   return globalThis.__paidupSql;
 }
 
