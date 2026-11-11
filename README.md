@@ -14,9 +14,9 @@ reading and writing; PaidUp does the record-keeping: numbering, GST maths, hosti
 
 | | |
 |---|---|
-| Live app | `https://<your-deployment>.vercel.app` |
+| Live app | https://paidup-murex.vercel.app |
 | Demo login | `demo@paidup.app` / `paidup-demo` |
-| MCP link | Shown on the **Connect Claude** page after logging in (`/w/<key>/mcp`) |
+| MCP link | Log in, open **Connect Claude**, copy the link (`https://paidup-murex.vercel.app/w/<key>/mcp`) |
 
 ### Connect to Claude
 
