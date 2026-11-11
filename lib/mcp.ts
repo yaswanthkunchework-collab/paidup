@@ -162,7 +162,8 @@ export function buildMcpHandler(ws: Workspace, base: string) {
           description:
             "Change an existing invoice: client details, line items (send the FULL new list — it replaces the old one), dates or notes. " +
             "This cannot send the invoice or change its status; sending happens only from the PaidUp dashboard. " +
-            "Use get_invoice first if you need the current line items. Changes show up live in PaidUp and on the client's link.",
+            "Use get_invoice first if you need the current line items. Changes show up live in PaidUp and on the client's link. " +
+            "Invoices with a recorded payment (part or full) are locked and cannot be changed.",
           inputSchema: z.object({
             invoice: z.string().describe("Invoice id, number, or sequence number."),
             client: clientSchema.partial().optional().describe("Fields to change. Changing the name moves the invoice to that client."),

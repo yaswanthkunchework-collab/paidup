@@ -17,6 +17,10 @@ export async function DELETE(_req: Request, ctx: { params: Promise<{ id: string 
   const ws = await apiWorkspace();
   if (!ws) return Response.json({ error: "Log in again." }, { status: 401 });
   const { id } = await ctx.params;
-  await deleteInvoice(ws.id, Number(id));
+  try {
+    await deleteInvoice(ws.id, Number(id));
+  } catch (e) {
+    return Response.json({ error: (e as Error).message }, { status: 409 });
+  }
   return Response.json({ ok: true });
 }

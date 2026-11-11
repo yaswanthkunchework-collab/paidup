@@ -102,6 +102,17 @@ html {
   background: #fff;
 }
 
+.field:disabled {
+  border-color: transparent;
+  background: transparent;
+  color: inherit;
+  -webkit-text-fill-color: currentColor;
+  opacity: 1;
+  cursor: default;
+}
+input[type="date"].field:disabled::-webkit-calendar-picker-indicator {
+  display: none;
+}
 .btn {
   display: inline-flex;
   align-items: center;

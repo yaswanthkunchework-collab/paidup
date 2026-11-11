@@ -330,6 +330,9 @@ export async function updateInvoice(wsId: number, id: number, patch: UpdateInput
   const s = await db();
   const inv = await findInvoice(wsId, id);
   if (!inv) throw new Error("Invoice not found.");
+  if (inv.paid_amount > 0) {
+    throw new Error(`${inv.number} is locked because a payment has been recorded against it. Invoices with payments can't be edited.`);
+  }
   const changes: string[] = [];
 
   if (patch.client) {
@@ -429,6 +432,11 @@ export async function deleteAllInvoices(wsId: number) {
 
 export async function deleteInvoice(wsId: number, id: number) {
   const s = await db();
+  const [row] = await s<{ number: string; paid_amount: number }[]>`
+    select number, paid_amount::float8 as paid_amount from invoices where id = ${id} and workspace_id = ${wsId}`;
+  if (row && row.paid_amount > 0) {
+    throw new Error(`${row.number} is locked because a payment has been recorded against it. It can't be deleted.`);
+  }
   await s`delete from invoices where id = ${id} and workspace_id = ${wsId}`;
 }
 

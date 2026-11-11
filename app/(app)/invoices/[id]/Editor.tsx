@@ -133,6 +133,8 @@ export function Editor({ ws, inv, events, link, emailReady, emailed }: { ws: Ws;
   }
 
   const paid = inv.status === "paid";
+  // Once any money is recorded against an invoice, its contents are frozen.
+  const locked = inv.paid_amount > 0;
   const savedEmail = inv.client.email.trim();
   const emailOk = EMAIL_RE.test(savedEmail);
   const sendBlocker = !emailReady
@@ -149,6 +151,7 @@ export function Editor({ ws, inv, events, link, emailReady, emailed }: { ws: Ws;
     <div className="grid gap-6 lg:grid-cols-[1fr_320px]">
       {/* The invoice sheet, editable in place */}
       <article className="sheet relative rounded-lg p-6 sm:p-10">
+        <fieldset disabled={locked} className="m-0 min-w-0 border-0 p-0">
         {paid && <div className="paid-stamp right-10 top-60">PAID</div>}
         <header className="flex flex-wrap justify-between gap-6 border-b border-rule pb-6">
           <div>
@@ -198,25 +201,31 @@ export function Editor({ ws, inv, events, link, emailReady, emailed }: { ws: Ws;
               <input aria-label="Rate" type="number" min="0" step="any" className="field num text-right" value={it.rate} onChange={(e) => edit((x) => void (x.items[i].rate = Number(e.target.value)))} />
               <input aria-label="GST percent" type="number" min="0" max="28" step="any" className="field num text-right" value={it.gst_rate} onChange={(e) => edit((x) => void (x.items[i].gst_rate = Number(e.target.value)))} />
               <div className="num px-1 py-1.5 text-right">{inr(it.quantity * it.rate)}</div>
-              <button
-                aria-label="Remove line"
-                className="py-1.5 text-muted hover:text-ledger"
-                onClick={() => edit((x) => void x.items.splice(i, 1))}
-                disabled={d.items.length === 1}
-              >
-                ×
-              </button>
+              {locked ? (
+                <span />
+              ) : (
+                <button
+                  aria-label="Remove line"
+                  className="py-1.5 text-muted hover:text-ledger"
+                  onClick={() => edit((x) => void x.items.splice(i, 1))}
+                  disabled={d.items.length === 1}
+                >
+                  ×
+                </button>
+              )}
             </div>
           ))}
-          <button className="link mt-2 text-sm" onClick={() => edit((x) => void x.items.push({ description: "", quantity: 1, rate: 0, gst_rate: 18 }))}>
-            + Add line
-          </button>
+          {!locked && (
+            <button className="link mt-2 text-sm" onClick={() => edit((x) => void x.items.push({ description: "", quantity: 1, rate: 0, gst_rate: 18 }))}>
+              + Add line
+            </button>
+          )}
         </section>
 
         <section className="flex flex-wrap justify-between gap-6 border-t border-rule pt-5">
           <label className="min-w-60 flex-1">
             <span className="text-sm text-muted">Notes for your client</span>
-            <textarea rows={3} className="field mt-1 border-rule text-sm" value={d.notes} onChange={(e) => edit((x) => void (x.notes = e.target.value))} />
+            <textarea rows={3} className={`field mt-1 text-sm ${locked ? "resize-none" : "border-rule"}`} value={d.notes} onChange={(e) => edit((x) => void (x.notes = e.target.value))} />
           </label>
           <dl className="num ml-auto grid w-72 grid-cols-[1fr_auto] gap-y-1 text-sm">
             <dt className="text-muted">Subtotal</dt>
@@ -247,6 +256,7 @@ export function Editor({ ws, inv, events, link, emailReady, emailed }: { ws: Ws;
           </dl>
           <p className="w-full text-right text-xs text-muted">{amountInWords(totals.total)}</p>
         </section>
+        </fieldset>
       </article>
 
       {/* Status rail */}
@@ -256,6 +266,12 @@ export function Editor({ ws, inv, events, link, emailReady, emailed }: { ws: Ws;
             <StatusStamp status={inv.status} overdueDays={inv.overdue_days} />
             <span className="text-xs text-muted">{inv.view_count ? `Opened ${inv.view_count}×` : "Not opened yet"}</span>
           </div>
+          {locked && (
+            <div className="rounded-md bg-stamp-wash p-3 text-sm">
+              <div className="font-semibold text-stamp">Locked</div>
+              <p className="mt-1 text-ink-soft">A payment has been recorded, so this invoice can no longer be edited or deleted.</p>
+            </div>
+          )}
           {inv.client_query && inv.status === "query" && (
             <div className="rounded-md bg-amber-wash p-3 text-sm">
               <div className="font-semibold text-amber">Your client asked</div>
@@ -352,7 +368,7 @@ export function Editor({ ws, inv, events, link, emailReady, emailed }: { ws: Ws;
 
         <div className="flex justify-between text-sm">
           <Link href="/dashboard" className="link">Back to invoices</Link>
-          <button onClick={remove} className="link-danger">Delete invoice</button>
+          {!locked && <button onClick={remove} className="link-danger">Delete invoice</button>}
         </div>
       </aside>
     </div>
