@@ -4,7 +4,7 @@ import { sql } from "./db";
 export const DEMO = {
   username: process.env.DEMO_USERNAME || "demo@paidup.app",
   password: process.env.DEMO_PASSWORD || "paidup-demo",
-  business_name: process.env.DEMO_BUSINESS_NAME || "RightPrompt tech",
+  business_name: process.env.DEMO_BUSINESS_NAME || "RightPrompt Tech",
   owner_name: process.env.DEMO_OWNER_NAME || null,
   email: null as string | null,
   phone: "+91 98200 00000",
@@ -38,7 +38,7 @@ export async function ensureDemoWorkspace() {
     // One-time rename of the original demo persona to the demo customer, RightPrompt tech.
     await s`update workspaces set business_name = ${DEMO.business_name}, owner_name = ${DEMO.owner_name},
       email = ${DEMO.email}, upi_id = case when upi_id = 'ananyarao.demo@upi' then ${DEMO.upi_id} else upi_id end
-      where business_name = 'Ananya Rao Design Studio'`;
+      where business_name in ('Ananya Rao Design Studio', 'RightPrompt tech')`;
     return;
   }
   const key = process.env.MCP_KEY || "pu_" + crypto.randomBytes(12).toString("hex");

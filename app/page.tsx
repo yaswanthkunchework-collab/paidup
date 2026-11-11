@@ -53,7 +53,7 @@ export default function Home() {
           <div className="sheet relative mt-4 rounded-lg p-6">
             <div className="flex justify-between border-b border-rule pb-3">
               <div>
-                <div className="font-bold">RightPrompt tech</div>
+                <div className="font-bold">RightPrompt Tech</div>
                 <div className="text-xs text-muted">Mumbai, Maharashtra</div>
               </div>
               <div className="text-right">

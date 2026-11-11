@@ -29,7 +29,7 @@ export default async function Dashboard({ searchParams }: { searchParams: Promis
     <main className="mx-auto max-w-6xl px-5 py-8">
       <AutoRefresh />
       <h1 className="text-2xl font-bold tracking-tight">Receivables</h1>
-      <p className="mt-1 text-sm text-muted">Invoices created from Claude appear here within seconds. Click any invoice to edit it.</p>
+      <p className="mt-1 text-sm text-muted">Invoices created from Claude appear here. Click any invoice to edit it.</p>
 
       <section className="sheet mt-6 grid grid-cols-2 rounded-lg md:grid-cols-4">
         {figures.map((x, i) => (
