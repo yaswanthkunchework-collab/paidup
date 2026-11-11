@@ -1,69 +1,94 @@
-import Image from "next/image";
+import Link from "next/link";
+
+const SPLIT = [
+  {
+    who: "Your Claude",
+    does: "Reads the email thread or chat, works out what to bill, writes the line items, and later drafts polite follow-ups.",
+  },
+  {
+    who: "PaidUp",
+    does: "Numbers the invoice, calculates GST in plain code, hosts it for your client with a UPI QR, and tracks every view, approval and payment.",
+  },
+  {
+    who: "Your client",
+    does: "Opens one link. Approves, asks a question, or pays by UPI. No login, no app to install.",
+  },
+];
 
 export default function Home() {
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert h-5 w-[100px]"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the{" "}
-            <code className="rounded bg-black/[.06] px-1.5 py-0.5 font-mono text-[0.9em] dark:bg-white/[.08]">
-              page.tsx
-            </code>{" "}
-            file.
+    <main>
+      <header className="mx-auto flex max-w-6xl items-center justify-between px-5 py-5">
+        <span className="text-lg font-bold tracking-tight">PaidUp</span>
+        <nav className="flex items-center gap-4 text-sm">
+          <Link href="/connect" className="text-ink-soft hover:text-ink">Connect Claude</Link>
+          <Link href="/login" className="btn py-1.5">Open the demo</Link>
+        </nav>
+      </header>
+
+      <section className="mx-auto grid max-w-6xl items-center gap-12 px-5 pb-16 pt-10 lg:grid-cols-[1.05fr_1fr]">
+        <div>
+          <h1 className="text-4xl font-bold leading-[1.08] tracking-tight sm:text-5xl">
+            Bill clients from a chat.
+            <br />
+            Get paid from a link.
           </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
+          <p className="mt-5 max-w-xl text-lg text-ink-soft">
+            PaidUp is invoicing and collections for Indian freelancers and small agencies, run from your own Claude. Ask Claude to bill a
+            client; PaidUp turns it into a GST invoice your client can approve and pay by UPI, and shows you who still owes what.
           </p>
+          <div className="mt-8 flex flex-wrap gap-3">
+            <Link href="/login" className="btn px-5 py-2.5">Open the demo</Link>
+            <Link href="/connect" className="btn btn-quiet px-5 py-2.5">Connect your Claude</Link>
+          </div>
+          <p className="mt-4 text-sm text-muted">No AI runs inside PaidUp. Your Claude plan does the thinking; we do the record-keeping.</p>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert h-[14px] w-4"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={14}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+
+        <div className="relative" aria-hidden>
+          <div className="ml-auto max-w-md rounded-2xl rounded-br-sm bg-ink px-4 py-3 text-sm text-white shadow-lg">
+            Bill Orbit Analytics for the 14 dashboard screens and the design system kit from this thread. Due in 15 days.
+          </div>
+          <div className="mt-2 flex justify-end gap-1.5 text-xs text-muted">
+            <span className="rounded bg-claude px-1.5 font-semibold leading-5 text-white">Claude</span> used create_invoice
+          </div>
+          <div className="sheet relative mt-4 rounded-lg p-6">
+            <div className="flex justify-between border-b border-rule pb-3">
+              <div>
+                <div className="font-bold">Ananya Rao Design Studio</div>
+                <div className="text-xs text-muted">Mumbai, Maharashtra</div>
+              </div>
+              <div className="text-right">
+                <div className="text-xs text-muted">Tax invoice</div>
+                <div className="num font-semibold">INV/26-27/0007</div>
+              </div>
+            </div>
+            <div className="num mt-3 space-y-1.5 text-sm">
+              <div className="flex justify-between"><span>Dashboard UI redesign, 14 screens</span><span>₹49,000.00</span></div>
+              <div className="flex justify-between"><span>Design system starter kit</span><span>₹18,000.00</span></div>
+              <div className="flex justify-between text-muted"><span>IGST 18%</span><span>₹12,060.00</span></div>
+              <div className="flex justify-between border-t border-rule pt-1.5 font-semibold"><span>Total</span><span>₹79,060.00</span></div>
+            </div>
+            <div className="mt-4 flex flex-wrap gap-1.5">
+              <span className="stamp text-claude">Viewed 3×</span>
+              <span className="stamp text-stamp">Approved</span>
+              <span className="stamp text-ledger">4d overdue</span>
+            </div>
+          </div>
         </div>
-      </main>
-    </div>
+      </section>
+
+      <section className="border-t border-rule bg-white">
+        <div className="mx-auto grid max-w-6xl gap-8 px-5 py-12 md:grid-cols-3">
+          {SPLIT.map((s) => (
+            <div key={s.who}>
+              <h2 className="font-semibold">{s.who}</h2>
+              <p className="mt-2 text-ink-soft">{s.does}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <footer className="mx-auto max-w-6xl px-5 py-8 text-sm text-muted">PaidUp. Made in Mumbai for India’s freelancers and small agencies.</footer>
+    </main>
   );
 }

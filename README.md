@@ -1,36 +1,64 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# PaidUp
 
-## Getting Started
+**Bill clients from a chat. Get paid from a link.**
 
-First, run the development server:
+PaidUp is invoicing and collections for Indian freelancers and small agencies, run from your own Claude.
+You ask Claude to bill a client. Claude reads the thread, works out the line items and calls PaidUp over MCP.
+PaidUp turns that into a GST invoice with a client link where the client can approve it, ask a question, or pay by UPI,
+and it keeps a live ledger of who owes you what.
+
+**There is no AI inside PaidUp.** No OpenAI, Anthropic or other AI keys or SDKs. The customer's own Claude does the
+reading and writing; PaidUp does the record-keeping: numbering, GST maths, hosting, view tracking, approvals and payments.
+
+## Try it
+
+| | |
+|---|---|
+| Live app | `https://<your-deployment>.vercel.app` |
+| Demo login | `demo@paidup.app` / `paidup-demo` |
+| MCP link | Shown on the **Connect Claude** page after logging in (`/w/<key>/mcp`) |
+
+### Connect to Claude
+
+1. Log in and open **Connect Claude**. Copy the connector link.
+2. In Claude, go to **Customize → Connectors** (or **Settings → Connectors**) → **Add custom connector**. Name it `PaidUp`, paste the link, add. No sign-in needed.
+3. In a new chat, switch PaidUp on in the connectors menu and try:
+   - "Invoice Acme Media for 3 blog posts at ₹6,000 each, they're in Bengaluru. Due in 15 days."
+   - "Who owes me money? Rank who to chase first and draft a WhatsApp follow-up for each."
+   - "Orbit Analytics paid ₹50,000 today, ref 4471 2290. Record it."
+
+Watch the dashboard: invoices made from Claude appear within a few seconds, tagged **Claude**.
+
+## MCP tools
+
+| Tool | What it does |
+|---|---|
+| `create_invoice` | Client + line items in → numbered GST invoice and client link out |
+| `list_invoices` | Filter by unpaid / overdue / status / client |
+| `get_invoice` | Full invoice, GST split, payments, client query and activity timeline |
+| `update_invoice` | Change client details, line items, dates, notes, draft/sent |
+| `mark_paid` | Record a full or part payment with UPI/UTR reference |
+| `get_receivables_summary` | Outstanding, overdue, aging buckets, by client: powers "who should I chase first?" |
+
+## What the app does (plain code)
+
+- Invoice numbers per Indian financial year (`INV/26-27/0007`)
+- GST: CGST + SGST when seller and client are in the same state, IGST otherwise; amount in words (lakh/crore)
+- Client page with UPI QR for the exact balance, **Approve**, **Ask a question**, **I've paid**, print to PDF
+- View tracking, approvals, queries and payments in an activity timeline (Claude / You / Client)
+- Dashboard: outstanding, overdue, collected in 30 days, items waiting on you; live refresh
+- Edit anything on the invoice in place; totals recalculate as you type
+
+## Stack
+
+Next.js (App Router) on Vercel · Postgres (Neon) via `postgres` · MCP over Streamable HTTP via `mcp-handler` · `qrcode`.
+
+## Run locally
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
+DATABASE_URL=postgres://... npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
-
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
-
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Tables and the demo workspace are created automatically on first request. Test the MCP server with
+`node scripts/test-mcp.mjs http://localhost:3000/w/<key>/mcp`.
