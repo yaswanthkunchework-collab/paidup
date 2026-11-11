@@ -35,15 +35,18 @@ export function invoiceEmail(ws: Workspace, inv: InvoiceDetail, link: string, re
   const due = fmtDate(inv.due_date);
   const subject = `Invoice ${inv.number} from ${ws.business_name}`;
   const intro = resend
-    ? `Here is the latest version of invoice ${inv.number} for ${amount}, due on ${due}.`
-    : `Please find invoice ${inv.number} for ${amount}, due on ${due}.`;
+    ? `Here is the latest version of invoice ${inv.number} for ${amount}, due on ${due} against ${ws.business_name}.`
+    : `Please find invoice ${inv.number} for ${amount}, due on ${due} against ${ws.business_name}.`;
+  const greeting = `Hi ${inv.client_name} team,`;
+  const note = (inv.notes ?? "").trim();
   const contact = [ws.owner_name, ws.business_name].filter(Boolean).join(", ");
 
   const text = [
-    `Hi ${inv.client_name},`,
+    greeting,
     ``,
     intro,
     ``,
+    ...(note ? [`Note from ${ws.business_name}:`, note, ``] : []),
     `View and pay: ${link}`,
     ``,
     `From that page you can approve the invoice, ask a question, pay by UPI, or download a PDF.`,
@@ -56,8 +59,16 @@ export function invoiceEmail(ws: Workspace, inv: InvoiceDetail, link: string, re
 <html><body style="margin:0;padding:24px;background:#f6f4ef;font-family:Arial,Helvetica,sans-serif;color:#1d2a44">
   <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:520px;margin:0 auto;background:#ffffff;border:1px solid #e4e0d6;border-radius:8px">
     <tr><td style="padding:28px">
-      <p style="margin:0 0 16px">Hi ${esc(inv.client_name)},</p>
-      <p style="margin:0 0 20px">${esc(intro)}</p>
+      <p style="margin:0 0 16px">${esc(greeting)}</p>
+      <p style="margin:0 0 20px">${esc(intro)}</p>${
+        note
+          ? `
+      <div style="margin:0 0 20px;padding:12px 14px;background:#f6f4ef;border-left:3px solid #1d2a44;border-radius:4px">
+        <div style="font-size:13px;color:#6b7280;margin:0 0 4px">Note from ${esc(ws.business_name)}</div>
+        <div style="white-space:pre-line">${esc(note)}</div>
+      </div>`
+          : ""
+      }
       <table role="presentation" cellpadding="0" cellspacing="0" style="margin:0 0 20px;width:100%;border-top:1px solid #e4e0d6;border-bottom:1px solid #e4e0d6">
         <tr><td style="padding:10px 0;color:#6b7280">Invoice</td><td style="padding:10px 0;text-align:right">${esc(inv.number)}</td></tr>
         <tr><td style="padding:10px 0;color:#6b7280">Amount due</td><td style="padding:10px 0;text-align:right;font-weight:bold">${esc(amount)}</td></tr>

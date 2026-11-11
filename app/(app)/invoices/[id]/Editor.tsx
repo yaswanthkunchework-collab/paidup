@@ -269,16 +269,17 @@ export function Editor({ ws, inv, events, link, emailReady, emailed }: { ws: Ws;
               <p className="mt-1 text-muted">Check your bank, then record the payment.</p>
             </div>
           )}
-          <div className="flex gap-2">
-            <button className="btn flex-1" onClick={save} disabled={!dirty || saving}>
-              {saving ? "Saving…" : dirty ? "Save changes" : msg === "Saved" ? "Saved" : "No changes"}
-            </button>
-            {dirty && (
-              <button className="btn btn-quiet" onClick={() => { setD(toDraft(inv)); setDirty(false); setChangedElsewhere(false); }}>
+          {(dirty || saving) && (
+            <div className="flex gap-2">
+              <button className="btn flex-1" onClick={save} disabled={saving}>
+                {saving ? "Saving…" : "Save changes"}
+              </button>
+              <button className="btn btn-quiet" disabled={saving} onClick={() => { setD(toDraft(inv)); setDirty(false); setChangedElsewhere(false); }}>
                 Discard
               </button>
-            )}
-          </div>
+            </div>
+          )}
+          {!dirty && !saving && msg === "Saved" && <p className="text-sm text-stamp">Changes saved</p>}
           {msg && msg !== "Saved" && <p className="text-sm text-ledger">{msg}</p>}
           {changedElsewhere && <p className="text-sm text-amber">This invoice was just changed from Claude or by your client. Save to keep your version, or discard to see the latest.</p>}
 

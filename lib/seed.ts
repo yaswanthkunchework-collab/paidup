@@ -4,14 +4,14 @@ import { sql } from "./db";
 export const DEMO = {
   username: process.env.DEMO_USERNAME || "demo@paidup.app",
   password: process.env.DEMO_PASSWORD || "paidup-demo",
-  business_name: process.env.DEMO_BUSINESS_NAME || "Ananya Rao Design Studio",
-  owner_name: process.env.DEMO_OWNER_NAME || "Ananya Rao",
-  email: "hello@ananyarao.studio",
+  business_name: process.env.DEMO_BUSINESS_NAME || "RightPrompt tech",
+  owner_name: process.env.DEMO_OWNER_NAME || null,
+  email: null as string | null,
   phone: "+91 98200 00000",
   address: "402, Sea Breeze Apartments, Bandra West, Mumbai 400050",
   state: "Maharashtra",
   gstin: "27ABCPR1234F1Z5",
-  upi_id: process.env.DEMO_UPI_ID || "ananyarao.demo@upi",
+  upi_id: process.env.DEMO_UPI_ID || "rightprompt.demo@upi",
 };
 
 function todayIST() {
@@ -34,7 +34,13 @@ function fy(date: string) {
 export async function ensureDemoWorkspace() {
   const s = sql();
   const [existing] = await s`select id from workspaces order by id limit 1`;
-  if (existing) return;
+  if (existing) {
+    // One-time rename of the original demo persona to the demo customer, RightPrompt tech.
+    await s`update workspaces set business_name = ${DEMO.business_name}, owner_name = ${DEMO.owner_name},
+      email = ${DEMO.email}, upi_id = case when upi_id = 'ananyarao.demo@upi' then ${DEMO.upi_id} else upi_id end
+      where business_name = 'Ananya Rao Design Studio'`;
+    return;
+  }
   const key = process.env.MCP_KEY || "pu_" + crypto.randomBytes(12).toString("hex");
   const [ws] = await s<{ id: number }[]>`
     insert into workspaces (business_name, owner_name, email, phone, address, state, gstin, upi_id, login_username, login_password, mcp_key)

@@ -41,7 +41,6 @@ export default function Home() {
             <Link href="/login" className="btn px-5 py-2.5">Open the demo</Link>
             <Link href="/connect" className="btn btn-quiet px-5 py-2.5">Connect your Claude</Link>
           </div>
-          <p className="mt-4 text-sm text-muted">No AI runs inside PaidUp. Your Claude plan does the thinking; we do the record-keeping.</p>
         </div>
 
         <div className="relative" aria-hidden>
@@ -54,7 +53,7 @@ export default function Home() {
           <div className="sheet relative mt-4 rounded-lg p-6">
             <div className="flex justify-between border-b border-rule pb-3">
               <div>
-                <div className="font-bold">Ananya Rao Design Studio</div>
+                <div className="font-bold">RightPrompt tech</div>
                 <div className="text-xs text-muted">Mumbai, Maharashtra</div>
               </div>
               <div className="text-right">
