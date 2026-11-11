@@ -91,7 +91,9 @@ export function buildMcpHandler(ws: Workspace, base: string) {
             "work out the billable line items, and write clear, professional descriptions. Give rates BEFORE GST: PaidUp calculates GST " +
             "(CGST+SGST or IGST), totals, invoice number and amount in words itself, so do not compute them yourself. " +
             "If a key detail is genuinely missing (client name, what was delivered, or price), ask the user before calling. " +
-            "After creating, show the user the client link and offer to draft a short message to send it.",
+            "The invoice is always saved as a DRAFT and nothing is sent to the client. The user reviews it in the PaidUp dashboard and " +
+            "emails it to the client from there (only the dashboard can send). After creating, tell the user the draft is saved and give " +
+            "them the 'Edit in PaidUp' link to review and send it. Do not present the client link as something to share before it is sent.",
           inputSchema: z.object({
             client: clientSchema,
             items: z.array(itemSchema).min(1).describe("Billable line items."),
@@ -99,15 +101,14 @@ export function buildMcpHandler(ws: Workspace, base: string) {
             due_in_days: z.number().int().min(0).max(180).optional().describe("Payment terms in days. Default 15."),
             due_date: date.optional().describe("Exact due date; overrides due_in_days."),
             notes: z.string().optional().describe("Optional note shown on the invoice, e.g. payment instructions or a thank-you."),
-            status: z.enum(["draft", "sent"]).default("sent").describe("'draft' if the user wants to review before sending, else 'sent'."),
           }),
           annotations: { destructiveHint: false, idempotentHint: false },
         },
         async (args) => {
           try {
-            const id = await createInvoice(ws.id, args, "claude");
+            const id = await createInvoice(ws.id, { ...args, status: "draft" }, "claude");
             const d = await getInvoiceDetail(ws.id, id, ws.state);
-            return text(`Invoice created.\n\n${detailText(d!, ws, base)}`);
+            return text(`Draft invoice saved. Not sent yet: the user reviews it and emails it to the client from the PaidUp dashboard.\n\n${detailText(d!, ws, base)}`);
           } catch (e) {
             return fail(`Could not create invoice: ${(e as Error).message}`);
           }
@@ -159,7 +160,8 @@ export function buildMcpHandler(ws: Workspace, base: string) {
         {
           title: "Update invoice",
           description:
-            "Change an existing invoice: client details, line items (send the FULL new list — it replaces the old one), dates, notes, or draft/sent status. " +
+            "Change an existing invoice: client details, line items (send the FULL new list — it replaces the old one), dates or notes. " +
+            "This cannot send the invoice or change its status; sending happens only from the PaidUp dashboard. " +
             "Use get_invoice first if you need the current line items. Changes show up live in PaidUp and on the client's link.",
           inputSchema: z.object({
             invoice: z.string().describe("Invoice id, number, or sequence number."),
@@ -168,7 +170,6 @@ export function buildMcpHandler(ws: Workspace, base: string) {
             issue_date: date.optional(),
             due_date: date.optional(),
             notes: z.string().optional(),
-            status: z.enum(["draft", "sent"]).optional(),
           }),
           annotations: { destructiveHint: false, idempotentHint: true },
         },
@@ -250,7 +251,8 @@ export function buildMcpHandler(ws: Workspace, base: string) {
         `PaidUp is ${ws.business_name}'s invoicing and collections app (India, INR, GST, UPI). ` +
         "You do the reading and writing (working out line items, writing descriptions and follow-up messages); PaidUp stores invoices, " +
         "calculates GST and totals, hosts the client payment page with a UPI QR, and tracks views, approvals and payments. " +
-        "Never invent totals — always report the totals PaidUp returns.",
+        "Never invent totals — always report the totals PaidUp returns. " +
+        "Invoices you create are drafts; only the user can send them to the client, by email from the PaidUp dashboard.",
     },
   );
 }

@@ -4,7 +4,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { amountInWords, computeTotals, inr, type LineItem } from "@/lib/money";
 import { ActorTag, StatusStamp } from "@/components/Status";
-import { CopyButton } from "@/components/CopyButton";
+import { EMAIL_RE } from "@/lib/email-format";
 
 type Client = { name: string; email: string; state: string; gstin: string; address: string };
 type Inv = {
@@ -42,7 +42,7 @@ function when(iso: string) {
   return new Date(iso).toLocaleString("en-IN", { day: "numeric", month: "short", hour: "numeric", minute: "2-digit" });
 }
 
-export function Editor({ ws, inv, events, link }: { ws: Ws; inv: Inv; events: Ev[]; link: string }) {
+export function Editor({ ws, inv, events, link, emailReady, emailed }: { ws: Ws; inv: Inv; events: Ev[]; link: string; emailReady: boolean; emailed: boolean }) {
   const router = useRouter();
   const [d, setD] = useState<Draft>(() => toDraft(inv));
   const [dirty, setDirty] = useState(false);
@@ -53,6 +53,9 @@ export function Editor({ ws, inv, events, link }: { ws: Ws; inv: Inv; events: Ev
   const [payRef, setPayRef] = useState("");
   const seen = useRef(inv.version);
   const [changedElsewhere, setChangedElsewhere] = useState(false);
+  const [confirmSend, setConfirmSend] = useState(false);
+  const [sending, setSending] = useState(false);
+  const [sendMsg, setSendMsg] = useState<{ ok: boolean; text: string } | null>(null);
 
   // Pick up edits made from Claude (or another tab) when there are no unsaved local edits.
   useEffect(() => {
@@ -94,6 +97,21 @@ export function Editor({ ws, inv, events, link }: { ws: Ws; inv: Inv; events: Ev
     router.refresh();
   }
 
+  async function sendEmail() {
+    setSending(true);
+    setSendMsg(null);
+    const r = await fetch(`/api/invoices/${inv.id}/email`, { method: "POST" });
+    const body = await r.json().catch(() => ({}));
+    setSending(false);
+    setConfirmSend(false);
+    if (!r.ok) {
+      setSendMsg({ ok: false, text: body.error ?? "Couldn't send the email. Try again." });
+      return;
+    }
+    setSendMsg({ ok: true, text: `Sent to ${body.to}` });
+    router.refresh();
+  }
+
   async function recordPay() {
     const r = await fetch(`/api/invoices/${inv.id}/pay`, {
       method: "POST",
@@ -115,6 +133,17 @@ export function Editor({ ws, inv, events, link }: { ws: Ws; inv: Inv; events: Ev
   }
 
   const paid = inv.status === "paid";
+  const savedEmail = inv.client.email.trim();
+  const emailOk = EMAIL_RE.test(savedEmail);
+  const sendBlocker = !emailReady
+    ? "Email isn't set up yet. Add GMAIL_USER and GMAIL_APP_PASSWORD in Vercel."
+    : dirty
+      ? "Save your changes before sending."
+      : !savedEmail
+        ? "Add the client's billing email and save to send."
+        : !emailOk
+          ? "The billing email doesn't look right. Fix it and save."
+          : null;
 
   return (
     <div className="grid gap-6 lg:grid-cols-[1fr_320px]">
@@ -253,19 +282,39 @@ export function Editor({ ws, inv, events, link }: { ws: Ws; inv: Inv; events: Ev
           {msg && msg !== "Saved" && <p className="text-sm text-ledger">{msg}</p>}
           {changedElsewhere && <p className="text-sm text-amber">This invoice was just changed from Claude or by your client. Save to keep your version, or discard to see the latest.</p>}
 
-          <div className="border-t border-rule pt-4">
-            <div className="text-sm text-muted">Client link</div>
-            <div className="num mt-1 truncate text-sm">{link.replace(/^https?:\/\//, "")}</div>
-            <div className="mt-2 flex gap-2">
-              <CopyButton
-                text={link}
-                label="Copy link"
-                className="btn btn-quiet flex-1"
-                onCopied={() => inv.status === "draft" && fetch(`/api/invoices/${inv.id}/sent`, { method: "POST" }).then(() => router.refresh())}
-              />
-              <a className="btn btn-quiet flex-1" href={link} target="_blank" rel="noreferrer">Client view</a>
+          {!paid && (
+            <div className="border-t border-rule pt-4">
+              {confirmSend ? (
+                <div className="space-y-2">
+                  <p className="text-sm">
+                    Send <span className="font-semibold">{inv.number}</span> to{" "}
+                    <span className="font-semibold break-all">{savedEmail}</span>{emailed ? " again" : ""}?
+                  </p>
+                  <div className="flex gap-2">
+                    <button className="btn flex-1" onClick={sendEmail} disabled={sending}>{sending ? "Sending…" : "Send email"}</button>
+                    <button className="btn btn-quiet" onClick={() => setConfirmSend(false)} disabled={sending}>Cancel</button>
+                  </div>
+                </div>
+              ) : (
+                <button className="btn w-full" onClick={() => { setSendMsg(null); setConfirmSend(true); }} disabled={!!sendBlocker}>
+                  {emailed ? "Email again" : "Email to client"}
+                </button>
+              )}
+              {sendBlocker && !confirmSend && <p className="mt-2 text-xs text-muted">{sendBlocker}</p>}
+              {sendMsg && <p className={`mt-2 text-sm ${sendMsg.ok ? "text-stamp" : "text-ledger"}`}>{sendMsg.text}</p>}
+              <a className="mt-2 block text-center text-sm text-muted hover:text-ink" href={link} target="_blank" rel="noreferrer">
+                Preview what your client sees
+              </a>
             </div>
-          </div>
+          )}
+
+          {paid && (
+            <div className="border-t border-rule pt-4">
+              <a className="block text-center text-sm text-muted hover:text-ink" href={link} target="_blank" rel="noreferrer">
+                Preview what your client sees
+              </a>
+            </div>
+          )}
 
           {!paid && (
             <div className="border-t border-rule pt-4">

@@ -17,6 +17,17 @@ export default async function PublicInvoice({ params }: { params: Promise<{ toke
   if (!data) notFound();
   const { ws, inv } = data;
   const isOwner = (await sessionWorkspaceId()) === ws.id;
+  // Drafts haven't been sent yet, so only the owner (previewing) can see them.
+  if (inv.status === "draft" && !isOwner) {
+    return (
+      <main className="mx-auto max-w-md px-4 py-24 text-center">
+        <div className="sheet rounded-lg p-8">
+          <div className="text-lg font-semibold">This invoice isn&apos;t ready yet</div>
+          <p className="mt-2 text-sm text-ink-soft">{ws.business_name} is still preparing it. You&apos;ll get it by email once it&apos;s sent.</p>
+        </div>
+      </main>
+    );
+  }
   if (!isOwner) await recordView(inv.id);
 
   const t = inv.totals;

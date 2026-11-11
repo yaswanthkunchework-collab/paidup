@@ -33,12 +33,21 @@ Watch the dashboard: invoices made from Claude appear within a few seconds, tagg
 
 | Tool | What it does |
 |---|---|
-| `create_invoice` | Client + line items in → numbered GST invoice and client link out |
+| `create_invoice` | Client + line items in → numbered GST invoice saved as a **draft** (Claude never sends it) |
 | `list_invoices` | Filter by unpaid / overdue / status / client |
 | `get_invoice` | Full invoice, GST split, payments, client query and activity timeline |
-| `update_invoice` | Change client details, line items, dates, notes, draft/sent |
+| `update_invoice` | Change client details, line items, dates, notes (can't send or change status) |
 | `mark_paid` | Record a full or part payment with UPI/UTR reference |
 | `get_receivables_summary` | Outstanding, overdue, aging buckets, by client: powers "who should I chase first?" |
+
+## Sending invoices
+
+Invoices made from Claude are saved as drafts. You review them in the dashboard and click **Email to client**, which
+emails the client link to the client's billing email from your Gmail. Only the dashboard can send; Claude's connector
+has no tool for it. Until a draft is sent, its client link shows "This invoice isn't ready yet" to anyone but you.
+
+Setup: in Vercel → Project → Settings → Environment Variables, add `GMAIL_USER` (your Gmail address) and
+`GMAIL_APP_PASSWORD` (a [Google app password](https://myaccount.google.com/apppasswords); needs 2-Step Verification), then redeploy.
 
 ## What the app does (plain code)
 
