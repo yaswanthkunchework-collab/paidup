@@ -419,6 +419,14 @@ export async function recordPayment(
   return { already: false, full, amount, inv };
 }
 
+/** Removes every invoice (with its items and activity) and restarts numbering at 0001. Clients are kept. */
+export async function deleteAllInvoices(wsId: number) {
+  const s = await db();
+  const r = await s`delete from invoices where workspace_id = ${wsId} returning id`;
+  await s`update workspaces set next_seq = 1 where id = ${wsId}`;
+  return r.length;
+}
+
 export async function deleteInvoice(wsId: number, id: number) {
   const s = await db();
   await s`delete from invoices where id = ${id} and workspace_id = ${wsId}`;

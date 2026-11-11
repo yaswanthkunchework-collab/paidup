@@ -55,7 +55,9 @@ export default async function ConnectPage() {
 
       <section className="mt-10 border-t border-rule pt-6">
         <h2 className="font-semibold">Demo data</h2>
-        <p className="mt-1 text-sm text-muted">Put the sample clients and invoices back the way they started. Invoices you created will be removed.</p>
+        <p className="mt-1 text-sm text-muted">
+          Reset brings back the sample invoices. Delete all removes every invoice and starts numbering again from 0001. Saved clients are kept.
+        </p>
         <ResetDemo />
       </section>
     </main>

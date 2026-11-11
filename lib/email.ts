@@ -35,8 +35,8 @@ export function invoiceEmail(ws: Workspace, inv: InvoiceDetail, link: string, re
   const due = fmtDate(inv.due_date);
   const subject = `Invoice ${inv.number} from ${ws.business_name}`;
   const intro = resend
-    ? `Here is the latest version of invoice ${inv.number} for ${amount}, due on ${due} against ${ws.business_name}.`
-    : `Please find invoice ${inv.number} for ${amount}, due on ${due} against ${ws.business_name}.`;
+    ? `Here is the latest version of invoice ${inv.number} from ${ws.business_name} for ${amount}, due on ${due}.`
+    : `Please find invoice ${inv.number} from ${ws.business_name} for ${amount}, due on ${due}.`;
   const greeting = `Hi ${inv.client_name} team,`;
   const note = (inv.notes ?? "").trim();
   const contact = [ws.owner_name, ws.business_name].filter(Boolean).join(", ");
